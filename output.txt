@@ -1,0 +1,144 @@
+Statistics before rehash:
+Load Factor: 0.52
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 2.03846
+Statistics after rehash:
+Load Factor: 0.26
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 1.32692
+Statistics before rehash:
+Load Factor: 0.52
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 2.24231
+Statistics after rehash:
+Load Factor: 0.26
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 1.32308
+Statistics before rehash:
+Load Factor: 0.52
+Maximum Chain Length: 1 at index 3242
+Average Probe Count: 2.23846
+Statistics after rehash:
+Load Factor: 0.26
+Maximum Chain Length: 1 at index 2
+Average Probe Count: 1.43462
+Statistics before rehash:
+Load Factor: 0.52
+Maximum Chain Length: 1 at index 3242
+Average Probe Count: 2.41538
+Statistics after rehash:
+Load Factor: 0.26
+Maximum Chain Length: 1 at index 2
+Average Probe Count: 1.36923
+Statistics before rehash:
+Load Factor: 0.52
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 2.03846
+Statistics after rehash:
+Load Factor: 0.26
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 1.32692
+Statistics before rehash:
+Load Factor: 0.51
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 1.87059
+Statistics after rehash:
+Load Factor: 0.255
+Maximum Chain Length: 1 at index 1
+Average Probe Count: 1.31961
+Statistics before rehash:
+Load Factor: 0.51
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 1.77451
+Statistics after rehash:
+Load Factor: 0.255
+Maximum Chain Length: 1 at index 1
+Average Probe Count: 1.20588
+Statistics before rehash:
+Load Factor: 0.51
+Maximum Chain Length: 1 at index 2
+Average Probe Count: 1.94118
+Statistics after rehash:
+Load Factor: 0.255
+Maximum Chain Length: 1 at index 2
+Average Probe Count: 1.30588
+Statistics before rehash:
+Load Factor: 0.51
+Maximum Chain Length: 1 at index 2
+Average Probe Count: 1.80392
+Statistics after rehash:
+Load Factor: 0.255
+Maximum Chain Length: 1 at index 2
+Average Probe Count: 1.21176
+Statistics before rehash:
+Load Factor: 0.51
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 1.87059
+Statistics after rehash:
+Load Factor: 0.255
+Maximum Chain Length: 1 at index 1
+Average Probe Count: 1.31961
+Statistics before rehash:
+Load Factor: 0.51
+Maximum Chain Length: 1 at index 1202
+Average Probe Count: 1.81961
+Statistics after rehash:
+Load Factor: 0.255
+Maximum Chain Length: 1 at index 1
+Average Probe Count: 1.20784
+Statistics before rehash:
+Load Factor: 0.51
+Maximum Chain Length: 1 at index 8242
+Average Probe Count: 1.94118
+Statistics after rehash:
+Load Factor: 0.255
+Maximum Chain Length: 1 at index 2
+Average Probe Count: 1.30784
+Statistics before rehash:
+Load Factor: 0.51
+Maximum Chain Length: 1 at index 8242
+Average Probe Count: 1.87647
+Statistics after rehash:
+Load Factor: 0.255
+Maximum Chain Length: 1 at index 2
+Average Probe Count: 1.21373
+Statistics before rehash:
+Load Factor: 1.18
+Maximum Chain Length: 10 at index 1828
+Average Probe Count: 1.50847
+Statistics after rehash:
+Load Factor: 0.59
+Maximum Chain Length: 6 at index 2
+Average Probe Count: 1.07966
+Total unique words inserted: 10000
+(Hash Table  (Collision Resolution           Hash1                            Hash2
+  size)            Method)          (#of Collisions) (Average)   (#of Collisions)  (Average)
+
+
+                Chaining            5719         1.69439           4879         1.27755
+
+   5000      Double Hashing         3679         1.44491           3895         1.48545
+
+             Custom Probing         3737         1.45           3933         1.40515
+
+
+                Chaining            3795         1.24948           3929         1.27755
+
+   10000     Double Hashing         3679         1.44491           3595         1.48337
+
+             Custom Probing         3454         1.4654           3592         1.40764
+
+
+                Chaining            2364         1.00416           2580         1.00624
+
+   20000     Double Hashing         2686         1.42931           2950         1.49064
+
+             Custom Probing         2679         1.43763           2956         1.42516
+Statistics before rehash:
+Load Factor: 0.8927
+Maximum Chain Length: 7 at index 7347
+Average Probe Count: 1.17825
+Statistics after rehash:
+Load Factor: 1.7854
+Maximum Chain Length: 12 at index 1828
+Average Probe Count: 1.73318

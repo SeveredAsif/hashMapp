@@ -56,7 +56,6 @@ int auxHash(int key)
 class HashTable
 {
 private:
-    int size;
     vector<list<pair<string, int>>> table;
     enum CollisionStrategy collision_strategy;
     int maxChainLength;
@@ -64,13 +63,14 @@ private:
     int deletionNumber;
     int currentMaxChainLength;
     int currectMaxChainIndex;
-    int initialSize;
     int elements;
     int hashF;
 
 public:
     int collisions;
-    HashTable(int table_size, int maxChain, enum CollisionStrategy c, int hashFunc) : size(table_size), table(table_size), maxChainLength(maxChain), collision_strategy(c), insertionNumber(0), deletionNumber(0), currectMaxChainIndex(0), currentMaxChainLength(0), elements(0), collisions(0), hashF(hashFunc) {}
+    int initialSize;
+    int size;
+    HashTable(int table_size, int maxChain, enum CollisionStrategy c, int hashFunc) : size(table_size), initialSize(table_size), table(table_size), maxChainLength(maxChain), collision_strategy(c), insertionNumber(0), deletionNumber(0), currectMaxChainIndex(0), currentMaxChainLength(0), elements(0), collisions(0), hashF(hashFunc) {}
 
     void reHash(int type = 0)
     {
@@ -85,12 +85,15 @@ public:
             newSize = size / 2;
         }
 
-        cout << "Rehashing..." << newSize << endl;
+        string collisionStaratName = CollisionStrategy::SEPERATE_CHAINING == collision_strategy ? "SEPERATE_CHAINING" : CollisionStrategy::CUSTOM_PROBING == collision_strategy ? "CUSTOM_PROBING"
+                                                                                                                                                                                : "DOUBLE_HASHING";
+        // cout << "Rehashing..." << newSize << " " <<initialSize<<" is initialsize "<< collisionStaratName << endl;
 
         vector<list<pair<string, int>>> newTable(newSize);
-        collisions = 0; // eta ki kora lagbe ashole?
+        // collisions = 0; // eta ki kora lagbe ashole?
         for (int i = 0; i < size; i++)
         {
+            // cout << "Rehashing...f" << i << endl;
             for (auto &pair : table[i])
             {
                 int index;
@@ -113,25 +116,27 @@ public:
                 }
                 else if (collision_strategy == CollisionStrategy::CUSTOM_PROBING)
                 {
-                    int i = 1;
-                    // int index2 = auxHash(pair.first, newSize);
+                    int x = 1;
+                    // cout<<"Entering custom probing"<<endl;
+                    //  int index2 = auxHash(pair.first, newSize);
                     int index2 = auxHash(index);
                     while (newTable[index].size() != 0)
                     {
-                        index = (index + i * index2 * 17 + i * i * 31) % newSize;
-                        i++;
+                        index = (index + i * index2 * 17 + x * x * 31) % newSize;
+                        x++;
                     }
+                    // cout<<"Exiting custom probing"<<endl;
                     newTable[index].push_back(pair);
                 }
                 else if (collision_strategy == CollisionStrategy::DOUBLE_HASHING)
                 {
-                    int i = 1;
+                    int x = 1;
                     // int index2 = auxHash(pair.first, newSize);
                     int index2 = auxHash(index);
                     while (newTable[index].size() != 0)
                     {
-                        index = (index + 31 * i * index2) % newSize;
-                        i++;
+                        index = (index + 31 * x * index2) % newSize;
+                        x++;
                     }
                     newTable[index].push_back(pair);
                 }
@@ -223,6 +228,7 @@ public:
             }
             table[index].push_back(make_pair(key, value));
             insertionNumber++;
+            insertedKeys.push_back(key);
             // if ((double)(insertionNumber - deletionNumber) / size > 0.8)
             // {
             //     reHash();
@@ -235,7 +241,7 @@ public:
             if (insertionNumber % 100 == 0)
             {
                 // cout << currentMaxChainLength << " " << maxChainLength << endl;
-                if (currentMaxChainLength > maxChainLength || (double)(insertionNumber - deletionNumber) / size > 0.6)
+                if (currentMaxChainLength > maxChainLength || (double)(insertionNumber - deletionNumber) / size > 0.5)
                 {
                     reHash();
                 }
@@ -260,6 +266,7 @@ public:
             }
             table[index].push_back(make_pair(key, value));
             insertionNumber++;
+            insertedKeys.push_back(key);
             // if ((double)(insertionNumber - deletionNumber) / size > 0.8)
             // {
             //     reHash();
@@ -272,7 +279,7 @@ public:
             if (insertionNumber % 100 == 0)
             {
                 // cout << currentMaxChainLength << " " << maxChainLength << endl;
-                if (currentMaxChainLength > maxChainLength || (double)(insertionNumber - deletionNumber) / size > 0.6)
+                if (currentMaxChainLength > maxChainLength || (double)(insertionNumber - deletionNumber) / size > 0.5)
                 {
                     reHash();
                 }
@@ -347,6 +354,7 @@ public:
 
     void remove(const string &key)
     {
+        // cout << "Removing " << key << endl;
         int index;
         if (hashF == 1)
         {
@@ -364,6 +372,8 @@ public:
                 if (it->first == key)
                 {
                     chain.erase(it);
+                    // cout << "Deleted " <<key<< " Seperate chaining"<<endl;
+                    // cout<<size<<" "<<initialSize<<endl;
                     deletionNumber++;
 
                     if (deletionNumber % 100 == 0)
@@ -378,11 +388,14 @@ public:
                                 currectMaxChainIndex = i;
                             }
                         }
-                        if (table[maxChain].size() < 0.8 * maxChainLength)
+                        // cout<<table[maxChain].size()<<" "<<maxChainLength<<endl;
+                        if (table[maxChain].size() < (double)0.8 * maxChainLength)
                         {
-                            if (size / 2 > initialSize)
+                            // cout<<"i never come here"<<endl;
+                            if ((double)size / 2 >= initialSize)
                             {
                                 reHash(1);
+                                // cout<<"Rehashing done at separate chain"<<endl;
                             }
                         }
                     }
@@ -400,6 +413,7 @@ public:
                 if (table[index].front().first == key)
                 {
                     table[index].pop_front();
+                    // cout << "Deleted" <<key<< " custom prob"<<endl;
                     deletionNumber++;
                     if (deletionNumber % 100 == 0)
                     {
@@ -413,13 +427,14 @@ public:
                                 currectMaxChainIndex = i;
                             }
                         }
-                        if (table[maxChain].size() < 0.8 * maxChainLength)
-                        {
-                            if (size / 2 > initialSize)
-                            {
-                                reHash(1);
-                            }
-                        }
+                        // if (table[maxChain].size() < 0.8 * maxChainLength)
+                        //{
+                        // if (size / 2 > initialSize)
+                        // {
+                        //     reHash(1);
+                        //     cout<<"Rehashing done at custom probe"<<endl;
+                        // }
+                        //}
                     }
                     return;
                 }
@@ -437,6 +452,7 @@ public:
                 if (table[index].front().first == key)
                 {
                     table[index].pop_front();
+                    // cout << "Deleted " <<key<< " double hash"<<endl;
                     deletionNumber++;
                     if (deletionNumber % 100 == 0)
                     {
@@ -450,13 +466,14 @@ public:
                                 currectMaxChainIndex = i;
                             }
                         }
-                        if (table[maxChain].size() < 0.8 * maxChainLength)
-                        {
-                            if (size / 2 > initialSize)
-                            {
-                                reHash(1);
-                            }
-                        }
+                        // if (table[maxChain].size() < 0.8 * maxChainLength)
+                        //{
+                        // if (size / 2 > initialSize)
+                        // {
+                        //     reHash(1);
+                        //     cout<<"Rehashing done at double hash"<<endl;
+                        // }
+                        //}
                     }
                     return;
                 }
@@ -485,14 +502,23 @@ public:
 
     double calculateAverageProbeCount(double fraction)
     {
-        srand(5); // Seed random number generator
+        srand(0); // Seed random number generator
         int totalProbes = 0;
         int numProbes = 0;
         int numElementsToSearch = floor((insertionNumber - deletionNumber) * fraction);
         for (int i = 0; i < numElementsToSearch; ++i)
         {
             string randomKey = generateRandomKey();
-            int index = hash_function(randomKey, size);
+            int index;
+            if (hashF == 1)
+            {
+                index = hash_function(randomKey, size);
+            }
+            else
+            {
+                index = hash_function2(randomKey, size);
+            }
+            // int index = hash_function(randomKey, size);
 
             if (collision_strategy == CollisionStrategy::SEPERATE_CHAINING)
             {
@@ -553,51 +579,55 @@ public:
     void reportGenerate()
     {
 
-        if (collision_strategy == CollisionStrategy::SEPERATE_CHAINING)
-        {
-            cout << "SEPERATE_CHAINING" << endl;
-        }
-        else if (collision_strategy == CollisionStrategy::CUSTOM_PROBING)
-        {
-            cout << "CUSTOM_PROBING" << endl;
-        }
-        else if (collision_strategy == CollisionStrategy::DOUBLE_HASHING)
-        {
-            cout << "DOUBLE_HASHING" << endl;
-        }
-        cout << collisions << endl;
-        cout << calculateAverageProbeCount(0.1) << endl;
+        // if (collision_strategy == CollisionStrategy::SEPERATE_CHAINING)
+        // {
+        //     cout << "SEPERATE_CHAINING" << endl;
+        // }
+        // else if (collision_strategy == CollisionStrategy::CUSTOM_PROBING)
+        // {
+        //     cout << "CUSTOM_PROBING" << endl;
+        // }
+        // else if (collision_strategy == CollisionStrategy::DOUBLE_HASHING)
+        // {
+        //     cout << "DOUBLE_HASHING" << endl;
+        // }
+        cout << gap << collisions << gap << gap << gap;
+        cout << calculateAverageProbeCount(0.1);
 
-        while (size > initialSize)
-        {
-            string word = generateRandomKey();
-            remove(word);
-        }
+        // while (size > initialSize)
+        // {
+        //     string word = generateRandomKey();
+        //     remove(word);
+        // }
 
-        cout << collisions << endl;
-        cout << calculateAverageProbeCount(0.1) << endl;
+        // cout << collisions << endl;
+        // cout << calculateAverageProbeCount(0.1) << endl;
     }
 };
 
 int main()
 {
+    freopen("output.txt", "w", stdout);
 
-    cout << "(Hash Table  "
-         << "(Collision Resolution"
-         << "           Hash1"
-         << "                            Hash2" << endl;
-    cout << "  size)            "
-         << "Method)" << gap << "    " << gap << "(#of Collisions)"
-         << " "
-         << "(Average)" << gap << "(#of Collisions)"
-         << "  (Average)" << endl;
     // Initialize hash table with size 10007 (a prime number)
     HashTable hash_table(5000, 1000, CollisionStrategy::DOUBLE_HASHING, 1);
     HashTable hash_table2(5000, 1000, CollisionStrategy::CUSTOM_PROBING, 1);
-    HashTable hash_table3(5000, 10, CollisionStrategy::SEPERATE_CHAINING, 1);
+    HashTable hash_table3(5000, 9, CollisionStrategy::SEPERATE_CHAINING, 1);
     HashTable hash_table4(5000, 1000, CollisionStrategy::DOUBLE_HASHING, 2);
     HashTable hash_table5(5000, 1000, CollisionStrategy::CUSTOM_PROBING, 2);
-    HashTable hash_table6(5000, 10, CollisionStrategy::SEPERATE_CHAINING, 2);
+    HashTable hash_table6(5000, 9, CollisionStrategy::SEPERATE_CHAINING, 2);
+    HashTable hash_table7(5000, 1000, CollisionStrategy::DOUBLE_HASHING, 1);
+    HashTable hash_table8(10000, 1000, CollisionStrategy::CUSTOM_PROBING, 1);
+    HashTable hash_table9(10000, 9, CollisionStrategy::SEPERATE_CHAINING, 1);
+    HashTable hash_table10(10000, 1000, CollisionStrategy::DOUBLE_HASHING, 2);
+    HashTable hash_table11(10000, 1000, CollisionStrategy::CUSTOM_PROBING, 2);
+    HashTable hash_table12(10000, 9, CollisionStrategy::SEPERATE_CHAINING, 2);
+    HashTable hash_table13(20000, 10, CollisionStrategy::DOUBLE_HASHING, 1);
+    HashTable hash_table14(20000, 10, CollisionStrategy::CUSTOM_PROBING, 1);
+    HashTable hash_table15(20000, 9, CollisionStrategy::SEPERATE_CHAINING, 1);
+    HashTable hash_table16(20000, 10, CollisionStrategy::DOUBLE_HASHING, 2);
+    HashTable hash_table17(20000, 10, CollisionStrategy::CUSTOM_PROBING, 2);
+    HashTable hash_table18(20000, 9, CollisionStrategy::SEPERATE_CHAINING, 2);
     // Generate and insert 10,000 unique words into the hash table
     int uniqueWords = 0;
     while (uniqueWords < 10000)
@@ -605,12 +635,24 @@ int main()
         string word = generateRandomKey();
         if (hash_table.search(word) == -1 || hash_table2.search(word) == -1 || hash_table3.search(word) == -1)
         {
-            hash_table.insert(word, uniqueWords);  // Insert word with unique ID as value
-            hash_table2.insert(word, uniqueWords); // Insert word with unique ID as value
-            hash_table3.insert(word, uniqueWords); // Insert word with unique ID as value
-            // hash_table4.insert(word, uniqueWords); // Insert word with unique ID as value
-            // hash_table5.insert(word, uniqueWords); // Insert word with unique ID as value
-            // hash_table6.insert(word, uniqueWords); // Insert word with unique ID as value
+            hash_table.insert(word, uniqueWords);   // Insert word with unique ID as value
+            hash_table2.insert(word, uniqueWords);  // Insert word with unique ID as value
+            hash_table3.insert(word, uniqueWords);  // Insert word with unique ID as value
+            hash_table4.insert(word, uniqueWords);  // Insert word with unique ID as value
+            hash_table5.insert(word, uniqueWords);  // Insert word with unique ID as value
+            hash_table6.insert(word, uniqueWords);  // Insert word with unique ID as value
+            hash_table7.insert(word, uniqueWords);  // Insert word with unique ID as value
+            hash_table8.insert(word, uniqueWords);  // Insert word with unique ID as value
+            hash_table9.insert(word, uniqueWords);  // Insert word with unique ID as value
+            hash_table10.insert(word, uniqueWords); // Insert word with unique ID as value
+            hash_table11.insert(word, uniqueWords); // Insert word with unique ID as value
+            hash_table12.insert(word, uniqueWords); // Insert word with unique ID as value
+            hash_table13.insert(word, uniqueWords); // Insert word with unique ID as value
+            hash_table14.insert(word, uniqueWords); // Insert word with unique ID as value
+            hash_table15.insert(word, uniqueWords); // Insert word with unique ID as value
+            hash_table16.insert(word, uniqueWords); // Insert word with unique ID as value
+            hash_table17.insert(word, uniqueWords); // Insert word with unique ID as value
+            hash_table18.insert(word, uniqueWords); // Insert word with unique ID as value
             uniqueWords++;
         }
         // else
@@ -621,11 +663,144 @@ int main()
 
     cout << "Total unique words inserted: " << uniqueWords << endl;
 
-    cout << "Hash function 1" << endl;
-    hash_table.reportGenerate();
-    hash_table2.reportGenerate();
+    cout << "(Hash Table  "
+         << "(Collision Resolution"
+         << "           Hash1"
+         << "                            Hash2" << endl;
+    cout << "  size)            "
+         << "Method)" << gap << "    " << gap << "(#of Collisions)"
+         << " "
+         << "(Average)" << gap << "(#of Collisions)"
+         << "  (Average)" << endl;
+
+    cout << "\n\n                Chaining         ";
+
     hash_table3.reportGenerate();
-    cout << "Hash function 2" << endl;
+    cout << "        ";
+    hash_table6.reportGenerate();
+    cout << endl;
+
+    cout << "\n   5000      Double Hashing      ";
+
+    hash_table.reportGenerate();
+    cout << "        ";
+    hash_table4.reportGenerate();
+    cout << endl;
+
+    cout << "\n             Custom Probing      ";
+
+    hash_table2.reportGenerate();
+    cout << "        ";
+    hash_table5.reportGenerate();
+    cout << endl;
+
+    cout << "\n\n                Chaining         ";
+
+    hash_table9.reportGenerate();
+    cout << "        ";
+    hash_table12.reportGenerate();
+    cout << endl;
+
+    cout << "\n   10000     Double Hashing      ";
+
+    hash_table7.reportGenerate();
+    cout << "        ";
+    hash_table10.reportGenerate();
+    cout << endl;
+
+    cout << "\n             Custom Probing      ";
+
+    hash_table8.reportGenerate();
+    cout << "        ";
+    hash_table11.reportGenerate();
+    cout << endl;
+
+    cout << "\n\n                Chaining         ";
+
+    hash_table15.reportGenerate();
+    cout << "        ";
+    hash_table18.reportGenerate();
+    cout << endl;
+
+    cout << "\n   20000     Double Hashing      ";
+
+    hash_table13.reportGenerate();
+    cout << "        ";
+    hash_table16.reportGenerate();
+    cout << endl;
+
+    cout << "\n             Custom Probing      ";
+
+    hash_table14.reportGenerate();
+    cout << "        ";
+    hash_table17.reportGenerate();
+    cout << endl;
+
+    // cout << "Hash function 1" << endl;
+    // hash_table.reportGenerate();
+    // hash_table2.reportGenerate();
+
+    // cout << "Hash function 2" << endl;
+    // hash_table4.reportGenerate();
+    // hash_table5.reportGenerate();
+
+    // cout << "After Deletion" << endl;
+
+    // cout << hash_table.size << " " << hash_table.initialSize << endl;
+    // cout << hash_table2.size << " " << hash_table2.initialSize << endl;
+    // cout << hash_table3.size << " " << hash_table3.initialSize << endl;
+    // cout << hash_table4.size << " " << hash_table4.initialSize << endl;
+    // cout << hash_table5.size << " " << hash_table5.initialSize << endl;
+    // cout << hash_table6.size << " " << hash_table6.initialSize << endl;
+
+    int index = 0;
+    while (hash_table3.size > hash_table3.initialSize)
+    {
+        string word = insertedKeys[index];
+        hash_table3.remove(word);
+        index++;
+    }
+    index = 0;
+    while (hash_table6.size > hash_table6.initialSize)
+    {
+        string word = insertedKeys[index];
+        hash_table6.remove(word);
+        index++;
+    }
+    index = 0;
+    while (hash_table9.size > hash_table9.initialSize)
+    {
+        string word = insertedKeys[index];
+        hash_table9.remove(word);
+        index++;
+    }
+    index = 0;
+    while (hash_table12.size > hash_table12.initialSize)
+    {
+        string word = insertedKeys[index];
+        hash_table12.remove(word);
+        index++;
+    }
+    index = 0;
+    while (hash_table15.size > hash_table15.initialSize)
+    {
+        string word = insertedKeys[index];
+        hash_table15.remove(word);
+        index++;
+    }
+    index = 0;
+    while (hash_table18.size > hash_table18.initialSize)
+    {
+        string word = insertedKeys[index];
+        hash_table18.remove(word);
+        index++;
+    }
+
+    // cout << "Hash function 1" << endl;
+    // hash_table.reportGenerate();
+    // hash_table2.reportGenerate();
+    // hash_table3.reportGenerate();
+    // cout << "Hash function 2" << endl;
     // hash_table4.reportGenerate();
     // hash_table5.reportGenerate();
     // hash_table6.reportGenerate();
